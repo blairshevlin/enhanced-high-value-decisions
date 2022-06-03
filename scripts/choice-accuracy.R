@@ -1,5 +1,5 @@
 
-df = read.csv("Exp1_clean.csv")
+df = read.csv("data/Exp1_clean.csv")
 
 #Libraries
 library(plyr);library(dplyr);
@@ -73,7 +73,7 @@ summary(glmVB)
 summary(glmFR)
 
 # Plot the results
-pdf(file="results/exp1_accuracy_valType.pdf")
+png(file="results/exp1_accuracy_valType.png")
 df %>%
   mutate(value_type = ifelse(totalValue > quantile(totalValue, probs = .75), "High-Value",
                              ifelse(totalValue < quantile(totalValue, probs = .25), "Low-Value", 
