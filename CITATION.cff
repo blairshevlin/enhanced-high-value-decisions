@@ -4,14 +4,11 @@ message: "If you use this dataset, please cite it as below."
 type: dataset
 authors:
   - family-names: Shevlin
-    name-particle: Blair Shevlin
     given-names: Blair
     orcid:  https://orcid.org/0000-0002-5420-0046
   - family-names: McNeal
-    name-particle: Nikolas McNeal
     given-names: Nikolas
   - family-names: Krajbich
-    name-particle: Ian Krajbich
     given-names: Ian
     orcid:  https://orcid.org/0000-0001-6618-5675
 version: 1.0.0
