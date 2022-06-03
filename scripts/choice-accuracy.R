@@ -45,7 +45,8 @@ them <-   theme(axis.title.x = element_text(face="bold", size=12,
 )
 
 df$nValDiff = df$X.L.R.
-df$task2 <- factor(df$task, levels = c("experiment_VB","experiment_FR"))
+df$task2 <- factor(df$task, levels = c("experiment_VB","experiment_FR"), 
+                   labels = c("Value-Based Reward","Accuracy-Based Reward"))
 
 # Look at the entire experiment
 glm <- glmer(formula = accuracy ~ I(totalValue/10)*task2+absRelativeValue+
@@ -73,19 +74,22 @@ summary(glmVB)
 summary(glmFR)
 
 # Plot the results
-png(file="results/exp1_accuracy_valType.png")
+png(file="results/exp1_accuracy_valType.png",
+    width = 800, height = 600
+    )
 df %>%
   mutate(value_type = ifelse(totalValue > quantile(totalValue, probs = .75), "High-Value",
                              ifelse(totalValue < quantile(totalValue, probs = .25), "Low-Value", 
                                     "Middle-Value")),
          value_type = factor(value_type, levels = c("Low-Value","Middle-Value","High-Value")),
          relative_value_bin = midround(abs(relativeValue), 2)) %>%
-  group_by(subject, value_type, relative_value_bin) %>%
+  group_by(subject, task2,value_type, relative_value_bin) %>%
   summarise(acc = mean(accuracy)) %>%
   ggplot(aes(x = value_type, y = acc, color = value_type)) +
     them + 
     stat_summary() +
   guides(color = "none") +
   labs(y = "P(Choose Best)",
-       x = "Value Type")
+       x = "Value Type") +
+  facet_grid(~task2)
 dev.off()
