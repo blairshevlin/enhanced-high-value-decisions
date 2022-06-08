@@ -5,7 +5,7 @@ df = read.csv("data/Exp1_clean.csv")
 library(plyr);library(dplyr);
 library(tidyverse);library(infer)
 library(rstatix)
-library(lme4)
+library(lme4);library(lmerTest)
 
 #Functions
 se <- function(x) {sqrt(var(x)/length(x))}
@@ -51,7 +51,7 @@ df$task2 <- factor(df$task, levels = c("experiment_VB","experiment_FR"),
 # Look at the entire experiment
 glm <- glmer(formula = accuracy ~ I(totalValue/10)*task2+absRelativeValue+
                (1|subject)+(0+I(totalValue/10)|subject)+(0+absRelativeValue|subject)+(0+task2|subject),
-             data=hddm_data3[hddm_data3$absRelativeValue>0,],
+             data=df[df$absRelativeValue>0,],
              family = binomial(link="logit"),
              glmerControl(optimizer="bobyqa",
                           optCtrl=list(maxfun=2e5)))
@@ -60,13 +60,13 @@ summary(glm)
 # Run it for each condition separately
 glmVB <- glmer(formula = accuracy ~ I(totalValue/10)+absRelativeValue+nValDiff+
                  (1|subject)+(0+I(totalValue/10)|subject)+(0+absRelativeValue|subject)+(0+nValDiff|subject),
-               data=hddm_data3[hddm_data3$task=="experiment_VB" & hddm_data3$absRelativeValue>0,],
+               data=df[df$task=="experiment_VB" & df$absRelativeValue>0,],
                family = binomial(link="logit"),
                glmerControl(optimizer="bobyqa",
                             optCtrl=list(maxfun=2e5)))
 glmFR <- glmer(formula = accuracy ~ I(totalValue/10)+absRelativeValue+nValDiff+
                  (1|subject)+(0+I(totalValue/10)|subject)+(0+absRelativeValue|subject)+(0+nValDiff|subject),
-               data=hddm_data3[hddm_data3$task=="experiment_FR" & hddm_data3$absRelativeValue>0,],
+               data=df[df$task=="experiment_FR" & df$absRelativeValue>0,],
                family = binomial(link="logit"),
                glmerControl(optimizer="bobyqa",
                             optCtrl=list(maxfun=2e5)))
@@ -93,3 +93,29 @@ df %>%
        x = "Value Type") +
   facet_grid(~task2)
 dev.off()
+
+# Response times
+# Look at the entire experiment
+lm <- lmer(formula = log(rt) ~ I(totalValue/100)*task2+I(absRelativeValue/100)+
+               (1|subject)+(0+I(totalValue/100)|subject)+(0+I(absRelativeValue/100)|subject)+(0+task2|subject),
+             data=df[df$absRelativeValue>0,],
+           REML = F,
+            lmerControl(optimizer="bobyqa",
+                          optCtrl=list(maxfun=2e5)))
+summary(lm)
+
+# Run it for each condition separately
+lmVB <- lmer(formula = accuracy ~ I(totalValue/100)+I(absRelativeValue/100)+nValDiff+
+                 (1|subject)+(0+I(totalValue/100)|subject)+(0+I(absRelativeValue/100)|subject)+(0+nValDiff|subject),
+               data=df[df$task=="experiment_VB" & df$absRelativeValue>0,],
+             REML = F,
+               lmerControl(optimizer="bobyqa",
+                            optCtrl=list(maxfun=2e5)))
+lmFR <- lmer(formula = log(Tim) ~ I(totalValue/100)+I(absRelativeValue/100)+nValDiff+
+                 (1|subject)+(0+I(totalValue/100)|subject)+(0+I(absRelativeValue/100)|subject)+(0+nValDiff|subject),
+               data=df[df$task=="experiment_FR" & df$absRelativeValue>0,],
+             REML = F,
+               lmerControl(optimizer="bobyqa",
+                            optCtrl=list(maxfun=2e5)))
+summary(lmVB)
+summary(lmFR)
